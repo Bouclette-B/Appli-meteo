@@ -1,0 +1,47 @@
+body {
+    background-size: cover ;
+    background-image: url('assets/bg_bluesky.webp');
+    background-repeat: no-repeat;
+    background-position: center;
+    color: #4a4a4a;
+    min-height: 100vh;
+}
+
+.col {
+    padding: 0px;
+}
+
+.row {
+    margin: 10px 0px;
+    display: flex;
+    justify-content: center;
+}
+
+.btn {
+    border: solid 1px #92a5b7;
+    background-color: whitesmoke;
+}
+
+.btn-loupe {
+    width: 30px;
+    text-align: center;
+}
+
+.city-name {
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.current-temp {
+    font-size: 100px;
+}
+
+.row-carousel {
+    margin: 0px 66.75px ;
+}
+
+.sr-only{
+    left:0px;
+}
