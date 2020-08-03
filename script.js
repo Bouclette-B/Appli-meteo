@@ -4,6 +4,7 @@ const $cityName = document.querySelector('.city-name');
 const $condition = document.querySelector('.condition');
 const $bigLogo = document.querySelector('.big-logo');
 const $body = document.querySelector('body');
+const $divHours = document.querySelector('.col-hours');
 
 let currentHour = "";
 let city ="Toulon";
@@ -12,28 +13,59 @@ let hourIcon = "";
 let hourTemp = "";
 let hour ="";
 
-
-const updateBackground = function (){
-    if(condition == 'Ensoleillé'){
-        $body.style.backgroundImage = 'url(assets/bg_bluesky.webp)';
-    } else if (condition == 'Développement nuageux' || condition == 'Ciel voilé' || condition == 'Eclaircies' || condition == 'Faiblement nuageux'){
-        $body.style.backgroundImage = 'url(assets/bg_cloudy_bluesky.jpg)';
-    } else if (condition == 'Fortement nuageux') {
-        $body.style.backgroundImage = 'url(assets/bg_cloudy.jpg)';
+const updateBackground = function() {
+    switch (condition) {
+        case 'Ensoleillé':
+            $body.style.backgroundImage = 'url(assets/bg_bluesky.jpg)';  
+            break;
+        case 'Ciel voilé':
+        case 'Faiblement nuageux':
+        case 'Eclaircies':
+        case 'Stratus se dissipant':
+            $body.style.backgroundImage = 'url(assets/bg_cloudy_bluesky.jpg)';
+            break;
+        case 'Fortement nuageux':
+        case 'Développement nuageux':
+        case 'Stratus':
+            $body.style.backgroundImage = 'url(assets/bg_cloudy.jpg)';
+            break;
+        case 'Nuit claire':
+        case 'Nuit bien dégagée':
+            $body.style.backgroundImage = 'url(assets/bg_cloudless_night.jpg)';
+            break;
+        case 'Nuit légèrement voilée':
+        case 'Nuit claire et stratus':
+        case 'Nuit nuageuse':
+        case 'Nuit avec développement nuageux':
+            $body.style.backgroundImage = 'url(assets/bg_cloudy_night.jpg)';
+            break;
+        case 'Averses de pluie faible':
+        case 'Pluie faible':
+            $body.style.backgroundImage = 'url(assets/bg_small_rain.jpg)';
+            break;
+        case 'Averses de pluie modérée':
+        case 'Averses de pluie forte':
+        case 'Couvert avec averses':
+        case 'Pluie forte':
+        case 'Pluie modérée':
+            $body.style.backgroundImage = 'url(assets/bg_rain.jpg)';
+            break;
+        case 'Faiblement orageux':
+        case 'Orage modéré':
+        case 'Fortement orageux':
+            $body.style.backgroundImage = 'url(assets/bg_thunder_daylight.jpg)';
+            break;
+        case 'Nuit faiblement orageuse':
+            $body.style.backgroundImage = 'url(assets/bg_thunder_night.jpg)';
+            break;
     }
 }
-
-// const updateDiv = function ($div){
-//     if ($div != "") {
-//         $div.parentNode.removeChilde($div);
-//     }
-// }
 
 const addDiv = function() {
     const $div = document.createElement('div');
         $div.className = 'weather-by-hour';
         $div.innerHTML = '<p>' + hour + '</p>' + '<p> <img src="' + hourIcon + '"> </p>' + '<p>' + hourTemp + ' °C</p>';
-        document.querySelector('.col-hours').appendChild($div);
+        $divHours.appendChild($div);
     }
 
 const getWeatherbyHour = function(response) {
@@ -47,6 +79,7 @@ const getWeatherbyHour = function(response) {
         }
         i += 1;
     }
+    $divHours.innerHTML = "";
     while (i <= 23) {
         hour = i +'H00';
         hourIcon = response.fcst_day_0.hourly_data[hour].ICON;
