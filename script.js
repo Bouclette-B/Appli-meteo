@@ -7,7 +7,7 @@ const $body = document.querySelector('body');
 const $divHours = document.querySelector('.col-hours');
 
 let currentHour = "";
-let city ="Toulon";
+let city ="angers";
 let condition ="";
 let hourIcon = "";
 let hourTemp = "";
@@ -58,6 +58,24 @@ const updateBackground = function() {
         case 'Nuit faiblement orageuse':
             $body.style.backgroundImage = 'url(assets/bg_thunder_night.jpg)';
             break;
+        case 'Averses de neige faible':
+        case 'Neige faible':
+        case 'Neige modérée':
+        case 'Neige forte':
+        case 'Pluie et neige mêlée faible':
+        case 'Pluie et neige mêlée modérée':
+        case 'Pluie et neige mêlée forte':
+            $body.style.backgroundImage = 'url(assets/bg_snow_day.jpg)';
+            break;
+        case 'Nuit avec averses de neige faible':
+            $body.style.backgroundImage = 'url(assets/bg_snow_night.jpg)';
+            break;
+        case 'Brouillard':
+            $body.style.backgroundImage = 'url(assets/bg_fog.jpg)';
+            break;
+        default:
+            $body.style.backgroundImage = 'url(assets/bg_bluesky.jpg)';  
+            break;
     }
 }
 
@@ -70,6 +88,7 @@ const addDiv = function() {
 
 const getWeatherbyHour = function(response) {
     let i = 0;
+    let j = 0
     let iHour ="";
     while (iHour != currentHour) {
         if (i < 10) {
@@ -80,18 +99,28 @@ const getWeatherbyHour = function(response) {
         i += 1;
     }
     $divHours.innerHTML = "";
-    while (i <= 23) {
+    while (i < 24) {
         hour = i +'H00';
         hourIcon = response.fcst_day_0.hourly_data[hour].ICON;
         hourTemp = response.fcst_day_0.hourly_data[hour].TMP2m;
         addDiv();
         i +=1;
+        j +=1;
+    }
+    i = 0;
+    while (j < 24){
+        hour = i +'H00';
+        hourIcon = response.fcst_day_1.hourly_data[hour].ICON;
+        hourTemp = response.fcst_day_1.hourly_data[hour].TMP2m;
+        addDiv();
+        i +=1;
+        j +=1;
     }
 }
 
 const updateWeather = function () {
     if($citySearch.value != "") {
-        city = $citySearch.value
+        city = $citySearch.value;
     }
     let url = 'https://prevision-meteo.ch/services/json/' + city;
     fetch(url)
