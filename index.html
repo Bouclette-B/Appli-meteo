@@ -8,17 +8,14 @@
     <title>Météo</title>
 </head>
 <body>
-    <nav class="navbar">
-        <form class="form-inline input-group">
-            <input type="search" class="form-control city-search collapse" placeholder="Choisissez une ville" aria-label="Search" id="test">
-            <button type="submit" class="btn input-group-prepend" data-toggle="collapse" data-target="#test" onclick="updateWeather()" style="inline"><img src="assets/loupe.svg" class="btn-loupe"></button>
-        </form>
-    </nav>
+    <div class="row search">
+        <input type="text" class="city-search" placeholder="Choisissez une ville" id="test" autocomplete="off">
+        <button type="button" class="btn" data-toggle="collapse" data-target="#test" aria-expanded="false" aria-controls="test" onclick="updateWeather()"><img src="assets/loupe.svg" class="btn-loupe"></button>
+    </div>
     <div class="container ">
         <div class="row">
-            <div class="city-name"></div>
-            
-            
+            <div class="city-name">
+            </div>
         </div>
         <div class="row">
             <div class="col">
@@ -30,11 +27,8 @@
         <div class="row">
           <div class="col-lg-6 offset-mr-3 offset-mr-3 col-hours"></div>
         </div>
-        <div class="row">
-            
-        </div>
+        <div class="day"></div>
     </div>
-
     
     <script src="script.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

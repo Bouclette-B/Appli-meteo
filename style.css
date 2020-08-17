@@ -8,6 +8,9 @@ body {
 
 .container {
     background-color: rgba(255, 255, 255, 0.5);
+    width: 95%;
+    padding: 8px 0px;    
+    margin-bottom: 20px;
 }
 
 .col {
@@ -18,6 +21,10 @@ body {
     margin: 10px 0px;
     display: flex;
     justify-content: center;
+}
+.search {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .btn {
@@ -40,9 +47,8 @@ body {
 .current-temp {
     font-size: 100px;
 }
-
-.row-carousel {
-    margin: 0px 66.75px ;
+.condition {
+    margin-bottom: 50px;
 }
 
 .sr-only{
@@ -62,3 +68,19 @@ div.col-hours {
     color: #676262;
  }
 
+ .day {
+    background-color: rgba(255, 255, 255, 0.7);
+ }
+
+ div.weather-by-day {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+ }
+
+ div.weather-by-day p {
+    width: 30%;
+    text-align: center;
+ }
+
+ 

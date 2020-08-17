@@ -6,12 +6,16 @@ const $bigLogo = document.querySelector('.big-logo');
 const $body = document.querySelector('body');
 const $divHours = document.querySelector('.col-hours');
 
+
 let currentHour = "";
 let city ="angers";
 let condition ="";
-let hourIcon = "";
+let icon = "";
 let hourTemp = "";
 let hour ="";
+let day = "";
+let tempMin = "";
+let tempMax = "";
 
 const updateBackground = function() {
     switch (condition) {
@@ -79,14 +83,33 @@ const updateBackground = function() {
     }
 }
 
-const addDiv = function() {
+const addDivHour = function() {
     const $div = document.createElement('div');
-        $div.className = 'weather-by-hour';
-        $div.innerHTML = '<p>' + hour + '</p>' + '<p> <img src="' + hourIcon + '"> </p>' + '<p>' + hourTemp + ' °C</p>';
-        $divHours.appendChild($div);
+    $div.className = 'weather-by-hour';
+    $div.innerHTML = '<p>' + hour + '</p> <p> <img src="' + icon + '"> </p> <p>' + hourTemp + ' °C</p>';
+    $divHours.appendChild($div);
     }
 
-const getWeatherbyHour = function(response) {
+const addDivDay = function() {
+    const $div = document.createElement('div');
+    $div.className = 'weather-by-day';
+    $div.innerHTML = '<p>' + day + '</p> <p>' + tempMin + '°C / ' + tempMax + '°C</p> <p> <img src="' + icon + '"> </p>';
+    document.querySelector('.day').appendChild($div);
+}
+
+const getWeatherByDay = function(response) {
+    document.querySelector('.day').innerHTML = "";
+    for (i = 1; i <= 4; i++) {
+        let iDay = 'fcst_day_' + i;
+        day = response[iDay].day_long;
+        tempMin = response[iDay].tmin;
+        tempMax = response[iDay].tmax;
+        icon = response[iDay].icon;
+        addDivDay();
+    }
+}
+
+const getWeatherByHour = function(response) {
     let i = 0;
     let j = 0
     let iHour ="";
@@ -99,22 +122,18 @@ const getWeatherbyHour = function(response) {
         i += 1;
     }
     $divHours.innerHTML = "";
-    while (i < 24) {
+    for (i, j; i < 24; i++, j++) {
         hour = i +'H00';
-        hourIcon = response.fcst_day_0.hourly_data[hour].ICON;
+        icon = response.fcst_day_0.hourly_data[hour].ICON;
         hourTemp = response.fcst_day_0.hourly_data[hour].TMP2m;
-        addDiv();
-        i +=1;
-        j +=1;
+        addDivHour();
     }
     i = 0;
-    while (j < 24){
+    for (i, j; j < 24; i++, j++) {
         hour = i +'H00';
-        hourIcon = response.fcst_day_1.hourly_data[hour].ICON;
+        icon = response.fcst_day_1.hourly_data[hour].ICON;
         hourTemp = response.fcst_day_1.hourly_data[hour].TMP2m;
-        addDiv();
-        i +=1;
-        j +=1;
+        addDivHour();
     }
 }
 
@@ -134,7 +153,8 @@ const updateWeather = function () {
         currentHour = response.current_condition.hour;
         $condition.innerHTML = condition;
         $citySearch.value = "";
-        getWeatherbyHour(response);
+        getWeatherByHour(response);
+        getWeatherByDay(response);
         updateBackground();
     })
     .catch(function () {
