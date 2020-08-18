@@ -16,6 +16,7 @@ let hour ="";
 let day = "";
 let tempMin = "";
 let tempMax = "";
+let cityArray = [];
 
 const updateBackground = function() {
     switch (condition) {
@@ -83,6 +84,7 @@ const updateBackground = function() {
     }
 }
 
+// fonctions pour créer éléments HTML
 const addDivHour = function() {
     const $div = document.createElement('div');
     $div.className = 'weather-by-hour';
@@ -137,6 +139,31 @@ const getWeatherByHour = function(response) {
     }
 }
 
+const addFavourite = function() {
+    favouriteCities = localStorage.getItem('favouriteCities');
+    cityArray = favouriteCities.split(',');
+    for (i = 0; i < cityArray.length; i++) {
+        if(cityArray[i] != 0) {
+            const $link = document.createElement('a');
+            $link.className = 'dropdown-item';
+            $link.href = '#';
+            $link.innerHTML = cityArray[i];
+            document.querySelector('.dropdown-menu').appendChild($link);
+        }
+    }
+}
+
+const newFavourite = function() {
+    if(localStorage.length != 0) {
+        favouriteCities = localStorage.getItem('favouriteCities')
+        cityArray = favouriteCities.split(',');
+    }
+    cityArray.push($cityName.textContent);
+    localStorage.setItem('favouriteCities', cityArray);
+    document.querySelector('.dropdown-menu').innerHTML = "";
+    addFavourite();
+}
+
 const updateWeather = function () {
     if($citySearch.value != "") {
         city = $citySearch.value;
@@ -160,9 +187,9 @@ const updateWeather = function () {
     .catch(function () {
         alert('Choisis une vraie ville patate');
     })
-    
 }
 
 $citySearch.addEventListener('change', updateWeather);
 
 updateWeather();
+newFavourite();

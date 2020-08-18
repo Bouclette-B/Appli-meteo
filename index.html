@@ -8,6 +8,12 @@
     <title>Météo</title>
 </head>
 <body>
+    <div class="dropdown">
+        <button class="btn dropdown-toggle" type="button" id="historique" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Favoris</button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
+
+        </div>
+    </div>
     <div class="row search">
         <input type="text" class="city-search" placeholder="Choisissez une ville" id="test" autocomplete="off">
         <button type="button" class="btn" data-toggle="collapse" data-target="#test" aria-expanded="false" aria-controls="test" onclick="updateWeather()"><img src="assets/loupe.svg" class="btn-loupe"></button>
@@ -16,6 +22,7 @@
         <div class="row">
             <div class="city-name">
             </div>
+            <div><img class="favourite-logo" src="assets/logo_favourite.svg" alt="logo étoile blanche dans une goutte de localisation jaune" title="Ajouter cette ville aux favoris" onclick="newFavourite()"></div>
         </div>
         <div class="row">
             <div class="col">

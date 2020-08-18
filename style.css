@@ -44,6 +44,15 @@ body {
     text-align: center;
 }
 
+.favourite-logo {
+    width: 30px;
+    padding-left: 5px;
+}
+
+.favourite-logo:hover {
+    cursor: pointer;
+}
+
 .current-temp {
     font-size: 100px;
 }
