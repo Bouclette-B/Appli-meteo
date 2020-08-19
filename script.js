@@ -6,22 +6,21 @@ const $bigLogo = document.querySelector('.big-logo');
 const $body = document.querySelector('body');
 const $divHours = document.querySelector('.col-hours');
 
-
 let currentHour = "";
-let city ="angers";
-let condition ="";
+let city = "angers";
+let condition = "";
 let icon = "";
 let hourTemp = "";
-let hour ="";
+let hour = "";
 let day = "";
 let tempMin = "";
 let tempMax = "";
 let cityArray = [];
 
-const updateBackground = function() {
+const updateBackground = function () {
     switch (condition) {
         case 'Ensoleillé':
-            $body.style.backgroundImage = 'url(assets/bg_bluesky.jpg)';  
+            $body.style.backgroundImage = 'url(assets/bg_bluesky.jpg)';
             break;
         case 'Ciel voilé':
         case 'Faiblement nuageux':
@@ -79,27 +78,27 @@ const updateBackground = function() {
             $body.style.backgroundImage = 'url(assets/bg_fog.jpg)';
             break;
         default:
-            $body.style.backgroundImage = 'url(assets/bg_bluesky.jpg)';  
+            $body.style.backgroundImage = 'url(assets/bg_bluesky.jpg)';
             break;
     }
 }
 
 // fonctions pour créer éléments HTML
-const addDivHour = function() {
+const addDivHour = function () {
     const $div = document.createElement('div');
     $div.className = 'weather-by-hour';
-    $div.innerHTML = '<p>' + hour + '</p> <p> <img src="' + icon + '"> </p> <p>' + hourTemp + ' °C</p>';
+    $div.innerHTML = `<p>${hour}</p> <p> <img src="${icon}"> </p> <p>${hourTemp}°C</p>`;
     $divHours.appendChild($div);
-    }
+}
 
-const addDivDay = function() {
+const addDivDay = function () {
     const $div = document.createElement('div');
     $div.className = 'weather-by-day';
-    $div.innerHTML = '<p>' + day + '</p> <p>' + tempMin + '°C / ' + tempMax + '°C</p> <p> <img src="' + icon + '"> </p>';
+    $div.innerHTML = `<p>${day}</p> <p>${tempMin}°C / ${tempMax}°C</p> <p> <img src="${icon}"> </p>`;
     document.querySelector('.day').appendChild($div);
 }
 
-const getWeatherByDay = function(response) {
+const getWeatherByDay = function (response) {
     document.querySelector('.day').innerHTML = "";
     for (i = 1; i <= 4; i++) {
         let iDay = 'fcst_day_' + i;
@@ -111,85 +110,104 @@ const getWeatherByDay = function(response) {
     }
 }
 
-const getWeatherByHour = function(response) {
+const getWeatherByHour = function (response) {
     let i = 0;
     let j = 0
-    let iHour ="";
+    let iHour = "";
     while (iHour != currentHour) {
         if (i < 10) {
             iHour = '0' + i + ':00';
-        }else if (i >= 10) {
+        } else if (i >= 10) {
             iHour = i + ':00';
         }
         i += 1;
     }
     $divHours.innerHTML = "";
     for (i, j; i < 24; i++, j++) {
-        hour = i +'H00';
+        hour = i + 'H00';
         icon = response.fcst_day_0.hourly_data[hour].ICON;
         hourTemp = response.fcst_day_0.hourly_data[hour].TMP2m;
         addDivHour();
     }
     i = 0;
     for (i, j; j < 24; i++, j++) {
-        hour = i +'H00';
+        hour = i + 'H00';
         icon = response.fcst_day_1.hourly_data[hour].ICON;
         hourTemp = response.fcst_day_1.hourly_data[hour].TMP2m;
         addDivHour();
     }
 }
 
-const addFavourite = function() {
+const addFavourite = function () {
+    let cityName = $cityName.textContent;
     favouriteCities = localStorage.getItem('favouriteCities');
     cityArray = favouriteCities.split(',');
     for (i = 0; i < cityArray.length; i++) {
-        if(cityArray[i] != 0) {
-            const $link = document.createElement('a');
-            $link.className = 'dropdown-item';
-            $link.href = '#';
-            $link.innerHTML = cityArray[i];
-            document.querySelector('.dropdown-menu').appendChild($link);
+        if (cityArray[i] != 0){
+                    const $link = document.createElement('a');
+                    $link.className = 'dropdown-item';
+                    $link.href = '#';
+                    $link.onclick = function (event) {
+                        city = event.target.textContent;
+                        main()
+                    };
+                    $link.innerHTML = cityArray[i];
+                    document.querySelector('.dropdown-menu').appendChild($link);
         }
     }
 }
 
-const newFavourite = function() {
-    if(localStorage.length != 0) {
+const storeFavourite = function () {
+    let cityName = $cityName.textContent;
+    if (localStorage.length != 0) {
         favouriteCities = localStorage.getItem('favouriteCities')
         cityArray = favouriteCities.split(',');
     }
-    cityArray.push($cityName.textContent);
+    for (i = 0; i < cityArray.length; i++) {
+       if(cityName == cityArray[i]){
+            cityName = false;
+            alert('Cette ville est déjà dans vos favoris !');
+       }
+    }
+    if(cityName != false){
+        cityArray.push(cityName);
+    }
     localStorage.setItem('favouriteCities', cityArray);
     document.querySelector('.dropdown-menu').innerHTML = "";
     addFavourite();
 }
 
 const updateWeather = function () {
-    if($citySearch.value != "") {
+    if ($citySearch.value != "") {
         city = $citySearch.value;
     }
-    let url = 'https://prevision-meteo.ch/services/json/' + city;
-    fetch(url)
-    .then(response => response.json())
-    .then(function(response) {
-        $cityName.innerHTML = response.city_info.name;
-        $currentTemp.innerHTML = response.current_condition.tmp +'°C';
-        let bigLogoSrc = response.current_condition.icon_big;
-        $bigLogo.innerHTML = '<img src=' + bigLogoSrc +'>';
-        condition = response.current_condition.condition;
-        currentHour = response.current_condition.hour;
-        $condition.innerHTML = condition;
-        $citySearch.value = "";
-        getWeatherByHour(response);
-        getWeatherByDay(response);
-        updateBackground();
-    })
-    .catch(function () {
-        alert('Choisis une vraie ville patate');
-    })
+    main();
 }
+
+const main = function(event) {
+    let url = 'https://prevision-meteo.ch/services/json/' + city;
+        fetch(url)
+            .then(response => response.json())
+            .then(function (response) {
+                $cityName.innerHTML = response.city_info.name;
+                $currentTemp.innerHTML = response.current_condition.tmp + '°C';
+                let bigLogoSrc = response.current_condition.icon_big;
+                $bigLogo.innerHTML = `<img src=${bigLogoSrc}>`;
+                condition = response.current_condition.condition;
+                currentHour = response.current_condition.hour;
+                $condition.innerHTML = condition;
+                $citySearch.value = "";
+                getWeatherByHour(response);
+                getWeatherByDay(response);
+                updateBackground();
+            })
+            .catch(function () {
+                alert('Choisis une vraie ville patate');
+            })
+    }
 
 $citySearch.addEventListener('change', updateWeather);
 
+
 updateWeather();
-newFavourite();
+storeFavourite();

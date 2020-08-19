@@ -8,21 +8,33 @@
     <title>Météo</title>
 </head>
 <body>
-    <div class="dropdown">
-        <button class="btn dropdown-toggle" type="button" id="historique" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Favoris</button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" >
-
+    <nav class="navbar navbar-expand-md navbar-dark">
+        <a href="#" class="navbar-brand"><img class="navbar-brand-logo" src="assets/logo_navbar.svg" alt="logo soleil souriant"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Favoris
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown"></div>
+                </li>
+            </ul>
+            <button class="btn btn-add-favourite my-2 my-sm-0" type="submit" onclick="storeFavourite()">Ajouter aux favoris</button>
+            <button class="btn btn-delete-favourite my-2 my-sm-0" type="submit" onclick="storeFavourite()">Ajouter aux favoris</button>
+            <form class="form-inline my-2 my-lg-0 search">
+                <input class="city-search form-control mr-sm-2" type="search" placeholder="Choisissez une ville" aria-label="Search" autocomplete="off">
+            </form>
         </div>
-    </div>
-    <div class="row search">
-        <input type="text" class="city-search" placeholder="Choisissez une ville" id="test" autocomplete="off">
-        <button type="button" class="btn" data-toggle="collapse" data-target="#test" aria-expanded="false" aria-controls="test" onclick="updateWeather()"><img src="assets/loupe.svg" class="btn-loupe"></button>
-    </div>
+    </nav>
+
     <div class="container ">
         <div class="row">
             <div class="city-name">
             </div>
-            <div><img class="favourite-logo" src="assets/logo_favourite.svg" alt="logo étoile blanche dans une goutte de localisation jaune" title="Ajouter cette ville aux favoris" onclick="newFavourite()"></div>
+            <div><img class="favourite-logo" src="assets/logo_favourite.svg" alt="logo étoile blanche dans une goutte de localisation jaune" title="Ajouter cette ville aux favoris" onclick="storeFavourite()"></div>
         </div>
         <div class="row">
             <div class="col">
