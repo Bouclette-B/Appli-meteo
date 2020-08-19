@@ -7,7 +7,7 @@ const $body = document.querySelector('body');
 const $divHours = document.querySelector('.col-hours');
 
 let currentHour = "";
-let city = "angers";
+let city = "Angers";
 let condition = "";
 let icon = "";
 let hourTemp = "";
@@ -98,6 +98,49 @@ const addDivDay = function () {
     document.querySelector('.day').appendChild($div);
 }
 
+const addLinkFavourite = function () {
+    document.querySelector('.dropdown-menu').innerHTML=""
+    favouriteCities = localStorage.getItem('favouriteCities');
+    cityArray = favouriteCities.split(',');
+    for (i = 0; i < cityArray.length; i++) {
+        if (cityArray[i] != 0) {
+            const $link = document.createElement('a');
+            $link.className = 'dropdown-item';
+            $link.href = '#';
+            $link.onclick = function (event) {
+                city = event.target.textContent;
+                main()
+            };
+            $link.innerHTML = cityArray[i];
+            document.querySelector('.dropdown-menu').appendChild($link);
+        }
+    }
+}
+
+const displayFavouriteButtons = function () {
+    let cityName = city.toLowerCase();
+    let cityIsFavourite = "false"
+    let $deletFavouriteBtn = document.querySelector('.btn-delete-favourite');
+    let $addFavouriteBtn = document.querySelector('.btn-add-favourite');
+    let $favouriteLogo = document.querySelector('.favourite-logo');
+    favouriteCities = localStorage.getItem('favouriteCities')
+    cityArray = favouriteCities.split(',');
+    for (i = 0; i < cityArray.length; i++) {
+        cityArray[i] = cityArray[i].toLowerCase();
+        if (cityName == cityArray[i]) {
+            $deletFavouriteBtn.style.display = 'block';
+            $addFavouriteBtn.style.display = 'none';
+            $favouriteLogo.style.display = 'block';
+            cityIsFavourite = "true"
+
+        }
+    } if (cityIsFavourite == "false") {
+        $deletFavouriteBtn.style.display = 'none';
+        $addFavouriteBtn.style.display = 'block';
+        $favouriteLogo.style.display = 'none';
+    }
+}
+
 const getWeatherByDay = function (response) {
     document.querySelector('.day').innerHTML = "";
     for (i = 1; i <= 4; i++) {
@@ -109,7 +152,6 @@ const getWeatherByDay = function (response) {
         addDivDay();
     }
 }
-
 const getWeatherByHour = function (response) {
     let i = 0;
     let j = 0
@@ -138,43 +180,45 @@ const getWeatherByHour = function (response) {
     }
 }
 
-const addFavourite = function () {
-    let cityName = $cityName.textContent;
-    favouriteCities = localStorage.getItem('favouriteCities');
-    cityArray = favouriteCities.split(',');
-    for (i = 0; i < cityArray.length; i++) {
-        if (cityArray[i] != 0){
-                    const $link = document.createElement('a');
-                    $link.className = 'dropdown-item';
-                    $link.href = '#';
-                    $link.onclick = function (event) {
-                        city = event.target.textContent;
-                        main()
-                    };
-                    $link.innerHTML = cityArray[i];
-                    document.querySelector('.dropdown-menu').appendChild($link);
-        }
-    }
-}
-
 const storeFavourite = function () {
     let cityName = $cityName.textContent;
     if (localStorage.length != 0) {
         favouriteCities = localStorage.getItem('favouriteCities')
-        cityArray = favouriteCities.split(',');
+        if (favouriteCities == "") {
+            favouriteCities = [];
+        } else {
+            cityArray = favouriteCities.split(',');
+        }
     }
     for (i = 0; i < cityArray.length; i++) {
-       if(cityName == cityArray[i]){
+        if (cityName == cityArray[i]) {
             cityName = false;
             alert('Cette ville est déjà dans vos favoris !');
-       }
+        }
     }
-    if(cityName != false){
+    if (cityName != false) {
         cityArray.push(cityName);
     }
     localStorage.setItem('favouriteCities', cityArray);
     document.querySelector('.dropdown-menu').innerHTML = "";
-    addFavourite();
+    addLinkFavourite();
+    displayFavouriteButtons();
+}
+
+const deleteFavourite = function() {
+    let cityName = $cityName.textContent;
+    favouriteCities = localStorage.getItem('favouriteCities');
+    cityArray = favouriteCities.split(',');
+    for (i = 0; i < cityArray.length; i++) {
+        if(cityName == cityArray[i]){
+            cityArray.pop(cityArray[i]);
+            localStorage.setItem('favouriteCities', cityArray);
+            addLinkFavourite();
+            displayFavouriteButtons();
+            break;
+        }
+    }
+    
 }
 
 const updateWeather = function () {
@@ -184,30 +228,33 @@ const updateWeather = function () {
     main();
 }
 
-const main = function(event) {
+const main = function () {
     let url = 'https://prevision-meteo.ch/services/json/' + city;
-        fetch(url)
-            .then(response => response.json())
-            .then(function (response) {
-                $cityName.innerHTML = response.city_info.name;
-                $currentTemp.innerHTML = response.current_condition.tmp + '°C';
-                let bigLogoSrc = response.current_condition.icon_big;
-                $bigLogo.innerHTML = `<img src=${bigLogoSrc}>`;
-                condition = response.current_condition.condition;
-                currentHour = response.current_condition.hour;
-                $condition.innerHTML = condition;
-                $citySearch.value = "";
-                getWeatherByHour(response);
-                getWeatherByDay(response);
-                updateBackground();
-            })
-            .catch(function () {
-                alert('Choisis une vraie ville patate');
-            })
-    }
+    fetch(url)
+        .then(response => response.json())
+        .then(function (response) {
+            $cityName.innerHTML = response.city_info.name;
+            $currentTemp.innerHTML = response.current_condition.tmp + '°C';
+            let bigLogoSrc = response.current_condition.icon_big;
+            $bigLogo.innerHTML = `<img src=${bigLogoSrc}>`;
+            condition = response.current_condition.condition;
+            currentHour = response.current_condition.hour;
+            $condition.innerHTML = condition;
+            $citySearch.value = "";
+            getWeatherByHour(response);
+            getWeatherByDay(response);
+            updateBackground();
+            displayFavouriteButtons();
+        })
+        .catch(function () {
+            alert('Choisis une vraie ville patate');
+        })
+}
 
 $citySearch.addEventListener('change', updateWeather);
-
+document.querySelector('.btn-add-favourite').addEventListener('click', storeFavourite);
+document.querySelector('.btn-delete-favourite').addEventListener('click', deleteFavourite);
 
 updateWeather();
 storeFavourite();
+
