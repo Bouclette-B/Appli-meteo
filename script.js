@@ -150,7 +150,8 @@ const getWeatherByHour = function (response, currentHour) {
         i += 1;
     }
     $divHours.innerHTML = "";
-    for (i, j; i < 24; i++, j++) {
+    
+    /*for (i, j; i < 24; i++, j++) {
         const hour = i + 'H00';
         const icon = response.fcst_day_0.hourly_data[hour].ICON;
         const hourTemp = response.fcst_day_0.hourly_data[hour].TMP2m;
@@ -162,7 +163,7 @@ const getWeatherByHour = function (response, currentHour) {
         const icon = response.fcst_day_1.hourly_data[hour].ICON;
         const hourTemp = response.fcst_day_1.hourly_data[hour].TMP2m;
         addDivHour(hour, icon, hourTemp);
-    }
+    }*/
 }
 
 const storeFavourite = function () {
