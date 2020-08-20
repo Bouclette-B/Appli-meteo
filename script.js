@@ -109,11 +109,19 @@ const addLinkFavourite = function () {
             $link.href = '#';
             $link.onclick = function (event) {
                 city = event.target.textContent;
-                main()
+                main();
             };
             $link.innerHTML = cityArray[i];
             document.querySelector('.dropdown-menu').appendChild($link);
         }
+    }
+    clickLinkFavourite();
+}
+
+const clickLinkFavourite = function() {
+    let favourites = document.querySelectorAll('.dropdown-item');
+    for (favourite of favourites){
+        favourite.addEventListener('click', main);
     }
 }
 
@@ -132,7 +140,6 @@ const displayFavouriteButtons = function () {
             $addFavouriteBtn.style.display = 'none';
             $favouriteLogo.style.display = 'block';
             cityIsFavourite = "true"
-
         }
     } if (cityIsFavourite == "false") {
         $deletFavouriteBtn.style.display = 'none';
@@ -152,6 +159,7 @@ const getWeatherByDay = function (response) {
         addDivDay();
     }
 }
+
 const getWeatherByHour = function (response) {
     let i = 0;
     let j = 0
@@ -185,7 +193,7 @@ const storeFavourite = function () {
     if (localStorage.length != 0) {
         favouriteCities = localStorage.getItem('favouriteCities')
         if (favouriteCities == "") {
-            favouriteCities = [];
+            cityArray = [];
         } else {
             cityArray = favouriteCities.split(',');
         }
@@ -211,14 +219,13 @@ const deleteFavourite = function() {
     cityArray = favouriteCities.split(',');
     for (i = 0; i < cityArray.length; i++) {
         if(cityName == cityArray[i]){
-            cityArray.pop(cityArray[i]);
+            cityArray.splice(i, 1);
             localStorage.setItem('favouriteCities', cityArray);
             addLinkFavourite();
             displayFavouriteButtons();
             break;
         }
     }
-    
 }
 
 const updateWeather = function () {
@@ -257,4 +264,3 @@ document.querySelector('.btn-delete-favourite').addEventListener('click', delete
 
 updateWeather();
 storeFavourite();
-
