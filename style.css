@@ -1,4 +1,5 @@
 body {
+    background-image: url(assets/bg_bluesky.jpg);
     background-size: cover ;
     background-repeat: no-repeat;
     background-position: center;
@@ -6,6 +7,54 @@ body {
     min-height: 100vh;
 }
 
+body.sunny {
+    background-image: url(assets/bg_bluesky.jpg);
+}
+
+body.cloudy {
+    background-image: url(assets/bg_cloudy_bluesky.jpg);
+}
+
+body.veryCloudy {
+    background-image: url(assets/bg_cloudy.jpg);
+
+}
+
+body.night {
+    background-image: url(assets/bg_cloudless_night.jpg);
+}
+
+body.cloudyNight {
+    background-image: url(assets/bg_cloudy_night.jpg);
+}
+
+body.smallRain {
+    background-image: url(assets/bg_small_rain.jpg);
+}
+
+body.rain {
+    background-image: url(assets/bg_rain.jpg);
+}
+
+body.thunder {
+    background-image: url(assets/bg_thunder_daylight.jpg);
+}
+
+body.thunderNight {
+    background-image: url(assets/bg_thunder_night.jpg);
+}
+
+body.snow {
+    background-image: url(assets/bg_snow_day.jpg);
+}
+
+body.snowNight {
+    background-image: url(assets/bg_snow_night.jpg);
+}
+
+body.foggy {
+    background-image: url(assets/bg_fog.jpg);
+}
 .container {
     background-color: rgba(255, 255, 255, .5);
     width: 95%;
