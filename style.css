@@ -138,10 +138,6 @@ body.foggy {
     display: none;
 }
 
-.favourite-logo:hover {
-    cursor: pointer;
-}
-
 .current-temp {
     font-size: 100px;
 }

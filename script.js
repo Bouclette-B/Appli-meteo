@@ -7,9 +7,6 @@ const $body = document.querySelector('body');
 const $divHours = document.querySelector('.col-hours');
 
 let city = "Angers";
-//let icon = "";
-//let hourTemp = "";
-//let hour = "";
 let day = "";
 let tempMin = "";
 let tempMax = "";
@@ -150,20 +147,17 @@ const getWeatherByHour = function (response, currentHour) {
         i += 1;
     }
     $divHours.innerHTML = "";
-    
-    /*for (i, j; i < 24; i++, j++) {
+    for(i, j; j < 24; i++, j++) {
+        let forecastDay = 'fcst_day_0';
+        if (i == 24){
+            i = 0;
+            forecastDay = 'fcst_day_1';
+        }
         const hour = i + 'H00';
-        const icon = response.fcst_day_0.hourly_data[hour].ICON;
-        const hourTemp = response.fcst_day_0.hourly_data[hour].TMP2m;
+        const icon = response[forecastDay].hourly_data[hour].ICON;
+        const hourTemp = response[forecastDay].hourly_data[hour].TMP2m;
         addDivHour(hour, icon, hourTemp);
     }
-    i = 0;
-    for (i, j; j < 24; i++, j++) {
-        const hour = i + 'H00';
-        const icon = response.fcst_day_1.hourly_data[hour].ICON;
-        const hourTemp = response.fcst_day_1.hourly_data[hour].TMP2m;
-        addDivHour(hour, icon, hourTemp);
-    }*/
 }
 
 const storeFavourite = function () {
