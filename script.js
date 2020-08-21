@@ -46,6 +46,7 @@ const appConditionForApiCondition = {
 let city = "Angers";
 let favouriteCitiesArray = [];
 
+//Level 1
 const updateWeather = function () {
     if ($citySearch.value != "") {
         city = $citySearch.value;
@@ -55,23 +56,34 @@ const updateWeather = function () {
 
 const storeFavourite = function () {
     let cityName = $cityName.textContent;
-    getfavouriteCitiesArray();
+    getFavouriteCitiesArray();
     updatefavouriteCitiesArray(cityName);
 }
 
+const deleteFavourite = function() {
+    let cityName = $cityName.textContent;
+    getFavouriteCitiesArray();
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        if(cityName == favouriteCitiesArray[i]){
+            favouriteCitiesArray.splice(i, 1);
+            localStorage.setItem('favouriteCities', favouriteCitiesArray);
+            addLinkFavourite();
+            displayFavouriteButtons();
+            break;
+        }
+    }
+}
+
+// Level 2
 const fetchWeather = function () {
     let url = 'https://prevision-meteo.ch/services/json/' + city;
     fetch(url)
         .then(response => response.json())
         .then(function (response) {
-            $cityName.innerHTML = response.city_info.name;
-            $currentTemp.innerHTML = response.current_condition.tmp + '°C';
-            let bigLogoSrc = response.current_condition.icon_big;
-            $bigLogo.innerHTML = `<img src=${bigLogoSrc}>`;
+            let bigIcon = response.current_condition.icon_big;
             let condition = response.current_condition.condition;
             let currentHour = response.current_condition.hour;
-            $condition.innerHTML = condition;
-            $citySearch.value = "";
+            updateWeatherInfo(response, bigIcon, condition);
             getWeatherByHour(response, currentHour);
             getWeatherByDay(response);
             updateBackground(condition);
@@ -82,7 +94,7 @@ const fetchWeather = function () {
         })
 }
 
-const getfavouriteCitiesArray = function() {
+const getFavouriteCitiesArray = function() {
     if (localStorage.length != 0) {
         favouriteCities = localStorage.getItem('favouriteCities')
         if (favouriteCities == "") {
@@ -101,18 +113,20 @@ const updatefavouriteCitiesArray = function(cityName) {
     displayFavouriteButtons();
 }
 
+//Level 3
+const updateWeatherInfo = function(response, bigIcon, condition) {
+    $cityName.innerHTML = response.city_info.name;
+    $currentTemp.innerHTML = response.current_condition.tmp + '°C';
+    $bigLogo.innerHTML = `<img src=${bigIcon}>`;
+    $condition.innerHTML = condition;
+    $citySearch.value = "";
+}
+
 const getWeatherByHour = function (response, currentHour) {
     let i = 0;
     let j = 0
-    let iHour = "";
-    while (iHour != currentHour) {
-        if (i < 10) {
-            iHour = '0' + i + ':00';
-        } else if (i >= 10) {
-            iHour = i + ':00';
-        }
-        i += 1;
-    }
+    let hourlyDataHour = "";
+    compareHours(hourlyDataHour, currentHour);
     $divHours.innerHTML = "";
     for(i, j; j < 24; i++, j++) {
         let forecastDay = 'fcst_day_0';
@@ -144,23 +158,11 @@ const updateBackground = function(condition) {
     $body.className = appConditionResult;
 }
 
-const checkfavouriteCitiesArray = function(cityName) {
-    for (i = 0; i < favouriteCitiesArray.length; i++) {
-        if (cityName == favouriteCitiesArray[i]) {
-            cityName = false;
-            alert('Cette ville est déjà dans vos favoris !');
-        }
-    }
-    if (cityName != false) {
-        favouriteCitiesArray.push(cityName);
-    }
-}
-
 const displayFavouriteButtons = function () {
     let cityName = city.toLowerCase();
     let cityIsFavourite = "false"
     let $favouriteLogo = document.querySelector('.favourite-logo');
-    getfavouriteCitiesArray();
+    getFavouriteCitiesArray();
     for (i = 0; i < favouriteCitiesArray.length; i++) {
         favouriteCitiesArray[i] = favouriteCitiesArray[i].toLowerCase();
         if (cityName == favouriteCitiesArray[i]) {
@@ -176,12 +178,37 @@ const displayFavouriteButtons = function () {
     }
 }
 
+const checkfavouriteCitiesArray = function(cityName) {
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        if (cityName == favouriteCitiesArray[i]) {
+            cityName = false;
+            alert('Cette ville est déjà dans vos favoris !');
+        }
+    }
+    if (cityName != false) {
+        favouriteCitiesArray.push(cityName);
+    }
+}
+
+
+//Level 4
 const getApiCondition = function(apiCondition){
     const appCondition = appConditionForApiCondition[apiCondition];
     return appCondition;
 }
 
-// fonctions pour créer éléments HTML
+const compareHours = function(hourlyDataHour, currentHour) {
+    while (hourlyDataHour != currentHour) {
+        if (i < 10) {
+            hourlyDataHour = '0' + i + ':00';
+        } else if (i >= 10) {
+            hourlyDataHour = i + ':00';
+        }
+        i += 1;
+    }
+}
+
+// Functions to create HTML Elements
 const addDivHour = function (hour, icon, hourTemp) {
     const $div = document.createElement('div');
     $div.className = 'weather-by-hour';
@@ -198,7 +225,7 @@ const addDivDay = function (day, tempMin, tempMax, icon) {
 
 const addLinkFavourite = function () {
     document.querySelector('.dropdown-menu').innerHTML=""
-    getfavouriteCitiesArray();
+    getFavouriteCitiesArray();
     for (i = 0; i < favouriteCitiesArray.length; i++) {
         if (favouriteCitiesArray[i] != 0) {
             const $link = document.createElement('a');
@@ -219,20 +246,6 @@ const clickLinkFavourite = function() {
     let favourites = document.querySelectorAll('.dropdown-item');
     for (favourite of favourites){
         favourite.addEventListener('click', fetchWeather);
-    }
-}
-
-const deleteFavourite = function() {
-    let cityName = $cityName.textContent;
-    getfavouriteCitiesArray();
-    for (i = 0; i < favouriteCitiesArray.length; i++) {
-        if(cityName == favouriteCitiesArray[i]){
-            favouriteCitiesArray.splice(i, 1);
-            localStorage.setItem('favouriteCities', favouriteCitiesArray);
-            addLinkFavourite();
-            displayFavouriteButtons();
-            break;
-        }
     }
 }
 
