@@ -5,13 +5,8 @@ const $condition = document.querySelector('.condition');
 const $bigLogo = document.querySelector('.big-logo');
 const $body = document.querySelector('body');
 const $divHours = document.querySelector('.col-hours');
-
-let city = "Angers";
-let day = "";
-let tempMin = "";
-let tempMax = "";
-let FavouriteCityArray = [];
-
+const $addFavouriteButton = document.querySelector('.btn-add-favourite');
+const $deleteFavouriteButton = document.querySelector('.btn-delete-favourite');
 const appConditionForApiCondition = {
     'Ensoleillé': 'sunny',
     'Ciel voilé': 'cloudy',
@@ -48,90 +43,62 @@ const appConditionForApiCondition = {
     'Nuit avec averses de neige faible': 'snowNight',
     'Brouillard': 'foggy',
 } 
+let city = "Angers";
+let favouriteCitiesArray = [];
 
-const getApiCondition = function(apiCondition){
-    const appCondition = appConditionForApiCondition[apiCondition];
-    return appCondition;
+const updateWeather = function () {
+    if ($citySearch.value != "") {
+        city = $citySearch.value;
+    }
+    fetchWeather();
 }
 
-// fonctions pour créer éléments HTML
-const addDivHour = function (hour, icon, hourTemp) {
-    const $div = document.createElement('div');
-    $div.className = 'weather-by-hour';
-    $div.innerHTML = `<p>${hour}</p> <p> <img src="${icon}"> </p> <p>${hourTemp}°C</p>`;
-    $divHours.appendChild($div);
+const storeFavourite = function () {
+    let cityName = $cityName.textContent;
+    getfavouriteCitiesArray();
+    updatefavouriteCitiesArray(cityName);
 }
 
-const addDivDay = function () {
-    const $div = document.createElement('div');
-    $div.className = 'weather-by-day';
-    $div.innerHTML = `<p>${day}</p> <p>${tempMin}°C / ${tempMax}°C</p> <p> <img src="${icon}"> </p>`;
-    document.querySelector('.day').appendChild($div);
+const fetchWeather = function () {
+    let url = 'https://prevision-meteo.ch/services/json/' + city;
+    fetch(url)
+        .then(response => response.json())
+        .then(function (response) {
+            $cityName.innerHTML = response.city_info.name;
+            $currentTemp.innerHTML = response.current_condition.tmp + '°C';
+            let bigLogoSrc = response.current_condition.icon_big;
+            $bigLogo.innerHTML = `<img src=${bigLogoSrc}>`;
+            let condition = response.current_condition.condition;
+            let currentHour = response.current_condition.hour;
+            $condition.innerHTML = condition;
+            $citySearch.value = "";
+            getWeatherByHour(response, currentHour);
+            getWeatherByDay(response);
+            updateBackground(condition);
+            displayFavouriteButtons();
+        })
+        .catch(function () {
+            alert('Choisis une vraie ville patate');
+        })
 }
 
-const getFavouriteCityArray = function() {
-    favouriteCities = localStorage.getItem('favouriteCities');
-    FavouriteCityArray = favouriteCities.split(',');
-}
-
-const addLinkFavourite = function () {
-    document.querySelector('.dropdown-menu').innerHTML=""
-    getFavouriteCityArray();
-    for (i = 0; i < FavouriteCityArray.length; i++) {
-        if (FavouriteCityArray[i] != 0) {
-            const $link = document.createElement('a');
-            $link.className = 'dropdown-item';
-            $link.href = '#';
-            $link.onclick = function (event) {
-                city = event.target.textContent;
-                fetchWeather();
-            };
-            $link.innerHTML = FavouriteCityArray[i];
-            document.querySelector('.dropdown-menu').appendChild($link);
+const getfavouriteCitiesArray = function() {
+    if (localStorage.length != 0) {
+        favouriteCities = localStorage.getItem('favouriteCities')
+        if (favouriteCities == "") {
+            favouriteCitiesArray = [];
+        } else {
+            favouriteCitiesArray = favouriteCities.split(',');
         }
     }
-    clickLinkFavourite();
 }
 
-const clickLinkFavourite = function() {
-    let favourites = document.querySelectorAll('.dropdown-item');
-    for (favourite of favourites){
-        favourite.addEventListener('click', fetchWeather);
-    }
-}
-
-const displayFavouriteButtons = function () {
-    let cityName = city.toLowerCase();
-    let cityIsFavourite = "false"
-    let $deletFavouriteBtn = document.querySelector('.btn-delete-favourite');
-    let $addFavouriteBtn = document.querySelector('.btn-add-favourite');
-    let $favouriteLogo = document.querySelector('.favourite-logo');
-    getFavouriteCityArray();
-    for (i = 0; i < FavouriteCityArray.length; i++) {
-        FavouriteCityArray[i] = FavouriteCityArray[i].toLowerCase();
-        if (cityName == FavouriteCityArray[i]) {
-            $deletFavouriteBtn.style.display = 'block';
-            $addFavouriteBtn.style.display = 'none';
-            $favouriteLogo.style.display = 'block';
-            cityIsFavourite = "true"
-        }
-    } if (cityIsFavourite == "false") {
-        $deletFavouriteBtn.style.display = 'none';
-        $addFavouriteBtn.style.display = 'block';
-        $favouriteLogo.style.display = 'none';
-    }
-}
-
-const getWeatherByDay = function (response) {
-    document.querySelector('.day').innerHTML = "";
-    for (i = 1; i <= 4; i++) {
-        let iDay = 'fcst_day_' + i;
-        day = response[iDay].day_long;
-        tempMin = response[iDay].tmin;
-        tempMax = response[iDay].tmax;
-        icon = response[iDay].icon;
-        addDivDay();
-    }
+const updatefavouriteCitiesArray = function(cityName) {
+    checkfavouriteCitiesArray(cityName);
+    localStorage.setItem('favouriteCities', favouriteCitiesArray);
+    document.querySelector('.dropdown-menu').innerHTML = "";
+    addLinkFavourite();
+    displayFavouriteButtons();
 }
 
 const getWeatherByHour = function (response, currentHour) {
@@ -160,38 +127,108 @@ const getWeatherByHour = function (response, currentHour) {
     }
 }
 
-const storeFavourite = function () {
-    let cityName = $cityName.textContent;
-    if (localStorage.length != 0) {
-        favouriteCities = localStorage.getItem('favouriteCities')
-        if (favouriteCities == "") {
-            FavouriteCityArray = [];
-        } else {
-            FavouriteCityArray = favouriteCities.split(',');
-        }
+const getWeatherByDay = function (response) {
+    document.querySelector('.day').innerHTML = "";
+    for (i = 1; i <= 4; i++) {
+        let iDay = 'fcst_day_' + i;
+        let day = response[iDay].day_long;
+        let tempMin = response[iDay].tmin;
+        let tempMax = response[iDay].tmax;
+        let icon = response[iDay].icon;
+        addDivDay(day, tempMin, tempMax, icon);
     }
-    for (i = 0; i < FavouriteCityArray.length; i++) {
-        if (cityName == FavouriteCityArray[i]) {
+}
+
+const updateBackground = function(condition) {
+    let appConditionResult = getApiCondition(condition);
+    $body.className = appConditionResult;
+}
+
+const checkfavouriteCitiesArray = function(cityName) {
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        if (cityName == favouriteCitiesArray[i]) {
             cityName = false;
             alert('Cette ville est déjà dans vos favoris !');
         }
     }
     if (cityName != false) {
-        FavouriteCityArray.push(cityName);
+        favouriteCitiesArray.push(cityName);
     }
-    localStorage.setItem('favouriteCities', FavouriteCityArray);
-    document.querySelector('.dropdown-menu').innerHTML = "";
-    addLinkFavourite();
-    displayFavouriteButtons();
+}
+
+const displayFavouriteButtons = function () {
+    let cityName = city.toLowerCase();
+    let cityIsFavourite = "false"
+    let $favouriteLogo = document.querySelector('.favourite-logo');
+    getfavouriteCitiesArray();
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        favouriteCitiesArray[i] = favouriteCitiesArray[i].toLowerCase();
+        if (cityName == favouriteCitiesArray[i]) {
+            $deleteFavouriteButton.style.display = 'block';
+            $addFavouriteButton.style.display = 'none';
+            $favouriteLogo.style.display = 'block';
+            cityIsFavourite = "true"
+        }
+    } if (cityIsFavourite == "false") {
+        $deleteFavouriteButton.style.display = 'none';
+        $addFavouriteButton.style.display = 'block';
+        $favouriteLogo.style.display = 'none';
+    }
+}
+
+const getApiCondition = function(apiCondition){
+    const appCondition = appConditionForApiCondition[apiCondition];
+    return appCondition;
+}
+
+// fonctions pour créer éléments HTML
+const addDivHour = function (hour, icon, hourTemp) {
+    const $div = document.createElement('div');
+    $div.className = 'weather-by-hour';
+    $div.innerHTML = `<p>${hour}</p> <p> <img src="${icon}"> </p> <p>${hourTemp}°C</p>`;
+    $divHours.appendChild($div);
+}
+
+const addDivDay = function (day, tempMin, tempMax, icon) {
+    const $div = document.createElement('div');
+    $div.className = 'weather-by-day';
+    $div.innerHTML = `<p>${day}</p> <p>${tempMin}°C / ${tempMax}°C</p> <p> <img src="${icon}"> </p>`;
+    document.querySelector('.day').appendChild($div);
+}
+
+const addLinkFavourite = function () {
+    document.querySelector('.dropdown-menu').innerHTML=""
+    getfavouriteCitiesArray();
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        if (favouriteCitiesArray[i] != 0) {
+            const $link = document.createElement('a');
+            $link.className = 'dropdown-item';
+            $link.href = '#';
+            $link.onclick = function (event) {
+                city = event.target.textContent;
+                fetchWeather();
+            };
+            $link.innerHTML = favouriteCitiesArray[i];
+            document.querySelector('.dropdown-menu').appendChild($link);
+        }
+    }
+    clickLinkFavourite();
+}
+
+const clickLinkFavourite = function() {
+    let favourites = document.querySelectorAll('.dropdown-item');
+    for (favourite of favourites){
+        favourite.addEventListener('click', fetchWeather);
+    }
 }
 
 const deleteFavourite = function() {
     let cityName = $cityName.textContent;
-    getFavouriteCityArray();
-    for (i = 0; i < FavouriteCityArray.length; i++) {
-        if(cityName == FavouriteCityArray[i]){
-            FavouriteCityArray.splice(i, 1);
-            localStorage.setItem('favouriteCities', FavouriteCityArray);
+    getfavouriteCitiesArray();
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        if(cityName == favouriteCitiesArray[i]){
+            favouriteCitiesArray.splice(i, 1);
+            localStorage.setItem('favouriteCities', favouriteCitiesArray);
             addLinkFavourite();
             displayFavouriteButtons();
             break;
@@ -199,40 +236,8 @@ const deleteFavourite = function() {
     }
 }
 
-const updateWeather = function () {
-    if ($citySearch.value != "") {
-        city = $citySearch.value;
-    }
-    fetchWeather();
-}
-
-const fetchWeather = function () {
-    let url = 'https://prevision-meteo.ch/services/json/' + city;
-    fetch(url)
-        .then(response => response.json())
-        .then(function (response) {
-            $cityName.innerHTML = response.city_info.name;
-            $currentTemp.innerHTML = response.current_condition.tmp + '°C';
-            let bigLogoSrc = response.current_condition.icon_big;
-            $bigLogo.innerHTML = `<img src=${bigLogoSrc}>`;
-            let condition = response.current_condition.condition;
-            let currentHour = response.current_condition.hour;
-            $condition.innerHTML = condition;
-            $citySearch.value = "";
-            getWeatherByHour(response, currentHour);
-            getWeatherByDay(response);
-            let appConditionResult = getApiCondition(condition);
-            $body.className = appConditionResult;
-            displayFavouriteButtons();
-        })
-        .catch(function () {
-            alert('Choisis une vraie ville patate');
-        })
-}
-
-$citySearch.addEventListener('change', updateWeather);
-document.querySelector('.btn-add-favourite').addEventListener('click', storeFavourite);
-document.querySelector('.btn-delete-favourite').addEventListener('click', deleteFavourite);
-
 updateWeather();
 storeFavourite();
+$citySearch.addEventListener('change', updateWeather);
+$addFavouriteButton.addEventListener('click', storeFavourite);
+$deleteFavouriteButton.addEventListener('click', deleteFavourite);
