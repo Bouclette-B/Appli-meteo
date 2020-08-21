@@ -54,21 +54,21 @@ const updateWeather = function () {
     fetchWeather();
 }
 
-const storeFavourite = function () {
+const addCityToFavourites = function () {
     let cityName = $cityName.textContent;
     getFavouriteCitiesArray();
+    checkfavouriteCitiesArray(cityName);
+    document.querySelector('.dropdown-menu').innerHTML = "";
     updatefavouriteCitiesArray(cityName);
 }
 
-const deleteFavourite = function() {
+const removeCityFromFavourites= function() {
     let cityName = $cityName.textContent;
     getFavouriteCitiesArray();
     for (i = 0; i < favouriteCitiesArray.length; i++) {
         if(cityName == favouriteCitiesArray[i]){
             favouriteCitiesArray.splice(i, 1);
-            localStorage.setItem('favouriteCities', favouriteCitiesArray);
-            addLinkFavourite();
-            displayFavouriteButtons();
+            updatefavouriteCitiesArray(cityName);
             break;
         }
     }
@@ -105,10 +105,8 @@ const getFavouriteCitiesArray = function() {
     }
 }
 
-const updatefavouriteCitiesArray = function(cityName) {
-    checkfavouriteCitiesArray(cityName);
+const updatefavouriteCitiesArray = function() {
     localStorage.setItem('favouriteCities', favouriteCitiesArray);
-    document.querySelector('.dropdown-menu').innerHTML = "";
     addLinkFavourite();
     displayFavouriteButtons();
 }
@@ -124,11 +122,17 @@ const updateWeatherInfo = function(response, bigIcon, condition) {
 
 const getWeatherByHour = function (response, currentHour) {
     let i = 0;
-    let j = 0
     let hourlyDataHour = "";
-    compareHours(hourlyDataHour, currentHour);
+    while (hourlyDataHour != currentHour) {
+        if (i < 10) {
+            hourlyDataHour = '0' + i + ':00';
+        } else if (i >= 10) {
+            hourlyDataHour = i + ':00';
+        }
+        i += 1;
+    }
     $divHours.innerHTML = "";
-    for(i, j; j < 24; i++, j++) {
+    for(let j = 0; j < 24; i++, j++) {
         let forecastDay = 'fcst_day_0';
         if (i == 24){
             i = 0;
@@ -197,17 +201,6 @@ const getApiCondition = function(apiCondition){
     return appCondition;
 }
 
-const compareHours = function(hourlyDataHour, currentHour) {
-    while (hourlyDataHour != currentHour) {
-        if (i < 10) {
-            hourlyDataHour = '0' + i + ':00';
-        } else if (i >= 10) {
-            hourlyDataHour = i + ':00';
-        }
-        i += 1;
-    }
-}
-
 // Functions to create HTML Elements
 const addDivHour = function (hour, icon, hourTemp) {
     const $div = document.createElement('div');
@@ -250,7 +243,7 @@ const clickLinkFavourite = function() {
 }
 
 updateWeather();
-storeFavourite();
+addCityToFavourites();
 $citySearch.addEventListener('change', updateWeather);
-$addFavouriteButton.addEventListener('click', storeFavourite);
-$deleteFavouriteButton.addEventListener('click', deleteFavourite);
+$addFavouriteButton.addEventListener('click', addCityToFavourites);
+$deleteFavouriteButton.addEventListener('click', removeCityFromFavourites);
