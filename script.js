@@ -58,20 +58,12 @@ const addCityToFavourites = function () {
     let cityName = $cityName.textContent;
     getFavouriteCitiesArray();
     checkfavouriteCitiesArray(cityName);
-    document.querySelector('.dropdown-menu').innerHTML = "";
     updatefavouriteCitiesArray(cityName);
 }
 
-const removeCityFromFavourites= function() {
-    let cityName = $cityName.textContent;
+const removeCityFromFavourites = function() {
     getFavouriteCitiesArray();
-    for (i = 0; i < favouriteCitiesArray.length; i++) {
-        if(cityName == favouriteCitiesArray[i]){
-            favouriteCitiesArray.splice(i, 1);
-            updatefavouriteCitiesArray(cityName);
-            break;
-        }
-    }
+    removeCity();
 }
 
 // Level 2
@@ -80,12 +72,10 @@ const fetchWeather = function () {
     fetch(url)
         .then(response => response.json())
         .then(function (response) {
-            let bigIcon = response.current_condition.icon_big;
             let condition = response.current_condition.condition;
-            let currentHour = response.current_condition.hour;
-            updateWeatherInfo(response, bigIcon, condition);
-            getWeatherByHour(response, currentHour);
-            getWeatherByDay(response);
+            updateWeatherInfo(response, condition);
+            showWeatherByHour(response);
+            showWeatherByDay(response);
             updateBackground(condition);
             displayFavouriteButtons();
         })
@@ -103,16 +93,30 @@ const getFavouriteCitiesArray = function() {
             favouriteCitiesArray = favouriteCities.split(',');
         }
     }
+    return favouriteCitiesArray;
 }
 
 const updatefavouriteCitiesArray = function() {
+    document.querySelector('.dropdown-menu').innerHTML = "";
     localStorage.setItem('favouriteCities', favouriteCitiesArray);
     addLinkFavourite();
     displayFavouriteButtons();
 }
 
+const removeCity = function() {
+    let cityName = $cityName.textContent;
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        if(cityName == favouriteCitiesArray[i]){
+            favouriteCitiesArray.splice(i, 1);
+            updatefavouriteCitiesArray();
+            break;
+        }
+    }
+}
+
 //Level 3
-const updateWeatherInfo = function(response, bigIcon, condition) {
+const updateWeatherInfo = function(response, condition) {
+    let bigIcon = response.current_condition.icon_big;
     $cityName.innerHTML = response.city_info.name;
     $currentTemp.innerHTML = response.current_condition.tmp + '°C';
     $bigLogo.innerHTML = `<img src=${bigIcon}>`;
@@ -120,32 +124,14 @@ const updateWeatherInfo = function(response, bigIcon, condition) {
     $citySearch.value = "";
 }
 
-const getWeatherByHour = function (response, currentHour) {
-    let i = 0;
-    let hourlyDataHour = "";
-    while (hourlyDataHour != currentHour) {
-        if (i < 10) {
-            hourlyDataHour = '0' + i + ':00';
-        } else if (i >= 10) {
-            hourlyDataHour = i + ':00';
-        }
-        i += 1;
-    }
+const showWeatherByHour = function (response) {
+    let currentHour = response.current_condition.hour;
+    let hourKey =  getHourKey(currentHour);
     $divHours.innerHTML = "";
-    for(let j = 0; j < 24; i++, j++) {
-        let forecastDay = 'fcst_day_0';
-        if (i == 24){
-            i = 0;
-            forecastDay = 'fcst_day_1';
-        }
-        const hour = i + 'H00';
-        const icon = response[forecastDay].hourly_data[hour].ICON;
-        const hourTemp = response[forecastDay].hourly_data[hour].TMP2m;
-        addDivHour(hour, icon, hourTemp);
-    }
+    getWeatherByHour(hourKey, response);
 }
 
-const getWeatherByDay = function (response) {
+const showWeatherByDay = function (response) {
     document.querySelector('.day').innerHTML = "";
     for (i = 1; i <= 4; i++) {
         let iDay = 'fcst_day_' + i;
@@ -163,23 +149,8 @@ const updateBackground = function(condition) {
 }
 
 const displayFavouriteButtons = function () {
-    let cityName = city.toLowerCase();
-    let cityIsFavourite = "false"
-    let $favouriteLogo = document.querySelector('.favourite-logo');
     getFavouriteCitiesArray();
-    for (i = 0; i < favouriteCitiesArray.length; i++) {
-        favouriteCitiesArray[i] = favouriteCitiesArray[i].toLowerCase();
-        if (cityName == favouriteCitiesArray[i]) {
-            $deleteFavouriteButton.style.display = 'block';
-            $addFavouriteButton.style.display = 'none';
-            $favouriteLogo.style.display = 'block';
-            cityIsFavourite = "true"
-        }
-    } if (cityIsFavourite == "false") {
-        $deleteFavouriteButton.style.display = 'none';
-        $addFavouriteButton.style.display = 'block';
-        $favouriteLogo.style.display = 'none';
-    }
+    showOrHideFavouriteElements();
 }
 
 const checkfavouriteCitiesArray = function(cityName) {
@@ -194,11 +165,66 @@ const checkfavouriteCitiesArray = function(cityName) {
     }
 }
 
-
 //Level 4
+const getHourKey = function (currentHour) {
+    let hourFormat = "";
+    let hourKey = 0;
+    while (hourFormat != currentHour) {
+        if (hourKey < 10) {
+            hourFormat = '0' + hourKey + ':00';
+        } else if (hourKey >= 10) {
+            hourFormat = hourKey + ':00';
+        }
+        hourKey += 1;
+    }
+    return hourKey
+}
+
+const getWeatherByHour = function(hourKey, response) {
+    for(let j = 0; j < 24; hourKey++, j++) {
+        let forecastDay = 'fcst_day_0';
+        if (hourKey == 24){
+            hourKey = 0;
+            forecastDay = 'fcst_day_1';
+        }
+        const hour = hourKey + 'H00';
+        const icon = response[forecastDay].hourly_data[hour].ICON;
+        const hourTemp = response[forecastDay].hourly_data[hour].TMP2m;
+        addDivHour(hour, icon, hourTemp);
+    }
+}
+
 const getApiCondition = function(apiCondition){
     const appCondition = appConditionForApiCondition[apiCondition];
     return appCondition;
+}
+
+const showOrHideFavouriteElements = function (){
+    let cityName = city.toLowerCase();
+    let $favouriteLogo = document.querySelector('.favourite-logo');
+    let cityIsFavourite = showFavouriteElements($favouriteLogo, cityName);
+    if (cityIsFavourite == false) {
+            hideFavouriteElements($favouriteLogo);
+        }
+}
+
+const showFavouriteElements = function($favouriteLogo, cityName) {
+    for (i = 0; i < favouriteCitiesArray.length; i++) {
+        favouriteCitiesArray[i] = favouriteCitiesArray[i].toLowerCase();
+        if (cityName == favouriteCitiesArray[i]) {
+            $deleteFavouriteButton.style.display = 'block';
+            $addFavouriteButton.style.display = 'none';
+            $favouriteLogo.style.display = 'block';
+            return true;
+        } 
+    } 
+    return false;
+}
+
+const hideFavouriteElements = function($favouriteLogo) {
+    $deleteFavouriteButton.style.display = 'none';
+    $addFavouriteButton.style.display = 'block';
+    $favouriteLogo.style.display = 'none';
 }
 
 // Functions to create HTML Elements
@@ -219,6 +245,11 @@ const addDivDay = function (day, tempMin, tempMax, icon) {
 const addLinkFavourite = function () {
     document.querySelector('.dropdown-menu').innerHTML=""
     getFavouriteCitiesArray();
+    createLinkFavourite();
+    addFunctionOnFavouriteLink();
+}
+
+const createLinkFavourite = function () {
     for (i = 0; i < favouriteCitiesArray.length; i++) {
         if (favouriteCitiesArray[i] != 0) {
             const $link = document.createElement('a');
@@ -232,10 +263,9 @@ const addLinkFavourite = function () {
             document.querySelector('.dropdown-menu').appendChild($link);
         }
     }
-    clickLinkFavourite();
 }
 
-const clickLinkFavourite = function() {
+const addFunctionOnFavouriteLink = function() {
     let favourites = document.querySelectorAll('.dropdown-item');
     for (favourite of favourites){
         favourite.addEventListener('click', fetchWeather);
