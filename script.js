@@ -46,7 +46,6 @@ const appConditionForApiCondition = {
 let city = "Angers";
 let favouriteCitiesArray = [];
 
-//Level 1
 const updateWeather = function () {
     if ($citySearch.value != "") {
         city = $citySearch.value;
@@ -66,7 +65,6 @@ const removeCityFromFavourites = function() {
     removeCity();
 }
 
-// Level 2
 const fetchWeather = function () {
     let url = 'https://prevision-meteo.ch/services/json/' + city;
     fetch(url)
@@ -114,7 +112,6 @@ const removeCity = function() {
     }
 }
 
-//Level 3
 const updateWeatherInfo = function(response, condition) {
     let bigIcon = response.current_condition.icon_big;
     $cityName.innerHTML = response.city_info.name;
@@ -165,7 +162,6 @@ const checkfavouriteCitiesArray = function(cityName) {
     }
 }
 
-//Level 4
 const getHourKey = function (currentHour) {
     let hourFormat = "";
     let hourKey = 0;
@@ -227,7 +223,6 @@ const hideFavouriteElements = function($favouriteLogo) {
     $favouriteLogo.style.display = 'none';
 }
 
-// Functions to create HTML Elements
 const addDivHour = function (hour, icon, hourTemp) {
     const $div = document.createElement('div');
     $div.className = 'weather-by-hour';
@@ -246,7 +241,6 @@ const addLinkFavourite = function () {
     document.querySelector('.dropdown-menu').innerHTML=""
     getFavouriteCitiesArray();
     createLinkFavourite();
-    addFunctionOnFavouriteLink();
 }
 
 const createLinkFavourite = function () {
@@ -255,25 +249,25 @@ const createLinkFavourite = function () {
             const $link = document.createElement('a');
             $link.className = 'dropdown-item';
             $link.href = '#';
-            $link.onclick = function (event) {
-                city = event.target.textContent;
-                fetchWeather();
-            };
             $link.innerHTML = favouriteCitiesArray[i];
             document.querySelector('.dropdown-menu').appendChild($link);
         }
     }
 }
 
-const addFunctionOnFavouriteLink = function() {
-    let favourites = document.querySelectorAll('.dropdown-item');
-    for (favourite of favourites){
-        favourite.addEventListener('click', fetchWeather);
-    }
+function addFunctionOnFavouriteLink(eventType, cssSelector, callback) {
+    document.addEventListener(eventType, function(event) {
+        const $target = event.target;
+        city = event.target.textContent;
+        if($target.classList.contains(cssSelector)){
+            callback();
+        }
+    })
 }
 
 updateWeather();
 addCityToFavourites();
+addFunctionOnFavouriteLink('click', 'dropdown-item', fetchWeather);
 $citySearch.addEventListener('change', updateWeather);
 $addFavouriteButton.addEventListener('click', addCityToFavourites);
 $deleteFavouriteButton.addEventListener('click', removeCityFromFavourites);
